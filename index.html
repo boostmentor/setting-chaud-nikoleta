@@ -1,0 +1,925 @@
+<!DOCTYPE html><html lang="fr"><head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Nikoleta × Boostmentor — Framework Setting Chaud</title>
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Syne:wght@400;600;700;800&family=DM+Mono:wght@300;400&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --black: #000000;
+    --white: #ffffff;
+    --border: rgba(255,255,255,0.08);
+    --accent: #ff8a00;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+  body { background: var(--black); color: var(--white); font-family: 'Syne', sans-serif; overflow-x: hidden; cursor: none; }
+
+  .cursor { position: fixed; width: 10px; height: 10px; background: white; border-radius: 50%; pointer-events: none; z-index: 9999; transition: transform 0.15s ease; transform: translate(-50%, -50%); }
+  .cursor-ring { position: fixed; width: 36px; height: 36px; border: 1px solid rgba(255,255,255,0.4); border-radius: 50%; pointer-events: none; z-index: 9998; transition: transform 0.4s cubic-bezier(0.23,1,0.32,1), width 0.3s, height 0.3s; transform: translate(-50%, -50%); }
+
+  nav { position: fixed; top: 0; left: 0; right: 0; z-index: 100; padding: 0 48px; height: 64px; display: flex; align-items: center; justify-content: space-between; background: rgba(0,0,0,0.72); backdrop-filter: saturate(180%) blur(20px); border-bottom: 1px solid var(--border); }
+  .nav-logo { font-family: 'Syne', sans-serif; font-weight: 800; font-size: 15px; letter-spacing: 0.12em; text-transform: uppercase; color: white; text-decoration: none; }
+  .nav-links { display: flex; gap: 32px; list-style: none; }
+  .nav-links a { font-size: 12px; font-weight: 400; letter-spacing: 0.06em; color: rgba(255,255,255,0.7); text-decoration: none; transition: color 0.2s; }
+  .nav-links a:hover { color: white; }
+  .nav-badge { font-size: 10px; font-weight: 600; letter-spacing: 0.1em; text-transform: uppercase; color: var(--black); background: white; padding: 5px 12px; border-radius: 20px; }
+
+  .hero { min-height: 100vh; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; padding: 120px 48px 80px; position: relative; overflow: hidden; }
+  .hero-noise { position: absolute; inset: 0; background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.03'/%3E%3C/svg%3E"); pointer-events: none; opacity: 0.4; }
+  .hero-eyebrow { font-size: 11px; font-weight: 600; letter-spacing: 0.25em; text-transform: uppercase; color: rgba(255,255,255,0.4); margin-bottom: 32px; opacity: 0; animation: fadeUp 0.8s 0.2s forwards; }
+  .hero-title { font-family: 'Instrument Serif', serif; font-size: clamp(64px, 10vw, 140px); line-height: 0.92; font-weight: 400; letter-spacing: -0.02em; margin-bottom: 24px; opacity: 0; animation: fadeUp 0.9s 0.4s forwards; }
+  .hero-title em { font-style: italic; color: rgba(255,255,255,0.5); }
+  .hero-subtitle { font-size: 17px; font-weight: 300; color: rgba(255,255,255,0.5); max-width: 580px; line-height: 1.6; margin-bottom: 56px; opacity: 0; animation: fadeUp 0.9s 0.6s forwards; }
+  .hero-stats { display: flex; gap: 64px; opacity: 0; animation: fadeUp 0.9s 0.8s forwards; flex-wrap: wrap; justify-content: center; }
+  .hero-stat { text-align: center; }
+  .hero-stat-number { font-family: 'Instrument Serif', serif; font-size: 48px; line-height: 1; font-weight: 400; margin-bottom: 6px; }
+  .hero-stat-label { font-size: 11px; font-weight: 400; letter-spacing: 0.1em; color: rgba(255,255,255,0.4); text-transform: uppercase; }
+  .hero-divider { width: 1px; height: 40px; background: rgba(255,255,255,0.15); align-self: center; }
+  .scroll-hint { position: absolute; bottom: 40px; left: 50%; transform: translateX(-50%); display: flex; flex-direction: column; align-items: center; gap: 8px; opacity: 0; animation: fadeUp 0.9s 1.2s forwards; }
+  .scroll-hint span { font-size: 10px; letter-spacing: 0.15em; text-transform: uppercase; color: rgba(255,255,255,0.3); }
+  .scroll-line { width: 1px; height: 40px; background: linear-gradient(to bottom, rgba(255,255,255,0.3), transparent); animation: scrollPulse 2s ease infinite; }
+
+  section { padding: 120px 48px; max-width: 1200px; margin: 0 auto; }
+  .section-number { font-family: 'DM Mono', monospace; font-size: 11px; color: rgba(255,255,255,0.25); letter-spacing: 0.15em; margin-bottom: 20px; display: block; }
+  .section-title { font-family: 'Instrument Serif', serif; font-size: clamp(40px, 5vw, 72px); font-weight: 400; line-height: 1.05; letter-spacing: -0.02em; margin-bottom: 16px; }
+  .section-subtitle { font-size: 17px; color: rgba(255,255,255,0.45); font-weight: 300; max-width: 600px; line-height: 1.6; margin-bottom: 72px; }
+  .sep { width: 100%; height: 1px; background: var(--border); max-width: 1200px; margin: 0 auto; }
+
+  .philosophy-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 1px; background: var(--border); border: 1px solid var(--border); border-radius: 20px; overflow: hidden; }
+  .philosophy-card { background: #0a0a0a; padding: 48px 40px; transition: background 0.3s; }
+  .philosophy-card:hover { background: #111; }
+  .philosophy-icon { font-family: 'DM Mono', monospace; font-size: 11px; color: rgba(255,255,255,0.25); letter-spacing: 0.1em; margin-bottom: 24px; display: block; }
+  .philosophy-card h3 { font-family: 'Instrument Serif', serif; font-size: 26px; font-weight: 400; line-height: 1.2; margin-bottom: 16px; }
+  .philosophy-card p { font-size: 14px; color: rgba(255,255,255,0.5); line-height: 1.7; font-weight: 300; }
+
+  .variants-container { margin-bottom: 0; }
+  .variants-tabs { display: flex; gap: 8px; margin-bottom: 0; flex-wrap: wrap; }
+  .variant-tab { font-family: 'DM Mono', monospace; font-size: 10px; letter-spacing: 0.12em; text-transform: uppercase; color: rgba(255,255,255,0.35); border: 1px solid rgba(255,255,255,0.1); background: transparent; padding: 8px 16px; border-radius: 20px; cursor: pointer; transition: all 0.2s; }
+  .variant-tab:hover { border-color: rgba(255,255,255,0.25); color: rgba(255,255,255,0.6); }
+  .variant-tab.active { background: white; color: black; border-color: white; }
+  .variant-panels { }
+  .variant-panel { display: none; }
+  .variant-panel.active { display: block; }
+
+  .phases-container { display: flex; flex-direction: column; gap: 0; }
+  .phase-item { display: grid; grid-template-columns: 80px 1fr 1fr; gap: 48px; padding: 56px 0; border-bottom: 1px solid var(--border); align-items: start; }
+  .phase-item:last-child { border-bottom: none; }
+  .phase-num { font-family: 'Instrument Serif', serif; font-size: 72px; font-weight: 400; color: rgba(255,255,255,0.06); line-height: 1; user-select: none; padding-top: 4px; }
+  .phase-title { font-family: 'Instrument Serif', serif; font-size: 32px; font-weight: 400; line-height: 1.1; margin-bottom: 12px; }
+  .phase-objective { font-size: 12px; font-weight: 600; letter-spacing: 0.12em; text-transform: uppercase; color: rgba(255,255,255,0.3); margin-bottom: 20px; }
+  .phase-desc { font-size: 15px; color: rgba(255,255,255,0.5); line-height: 1.7; font-weight: 300; }
+  .phase-items { display: flex; flex-direction: column; gap: 12px; }
+  .phase-item-row { display: flex; align-items: flex-start; gap: 12px; padding: 16px; background: rgba(255,255,255,0.03); border: 1px solid var(--border); border-radius: 10px; transition: background 0.2s, border-color 0.2s; }
+  .phase-item-row:hover { background: rgba(255,255,255,0.06); border-color: rgba(255,255,255,0.12); }
+  .phase-dot { width: 4px; height: 4px; background: rgba(255,255,255,0.3); border-radius: 50%; margin-top: 7px; flex-shrink: 0; }
+  .phase-item-text { font-size: 13px; color: rgba(255,255,255,0.6); line-height: 1.6; font-weight: 300; }
+
+  .ineffs-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 48px; }
+  .ineff-card { background: #080808; border: 1px solid rgba(255,138,0,0.10); border-radius: 16px; padding: 28px 32px; transition: border-color 0.3s; }
+  .ineff-card:hover { border-color: rgba(255,138,0,0.22); }
+  .ineff-num { font-family: 'DM Mono', monospace; font-size: 10px; letter-spacing: 0.15em; text-transform: uppercase; color: rgba(255,138,0,0.5); margin-bottom: 14px; }
+  .ineff-title { font-family: 'Instrument Serif', serif; font-size: 20px; font-weight: 400; margin-bottom: 10px; }
+  .ineff-desc { font-size: 13px; color: rgba(255,255,255,0.4); line-height: 1.6; font-weight: 300; }
+
+  .profiles-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+  .profile-card { background: #080808; border: 1px solid var(--border); border-radius: 20px; padding: 40px; transition: transform 0.3s, border-color 0.3s; position: relative; overflow: hidden; }
+  .profile-card::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 1px; background: linear-gradient(90deg, transparent, rgba(255,255,255,0.15), transparent); opacity: 0; transition: opacity 0.3s; }
+  .profile-card:hover { transform: translateY(-4px); border-color: rgba(255,255,255,0.12); }
+  .profile-card:hover::before { opacity: 1; }
+  .profile-tag { display: inline-block; font-family: 'DM Mono', monospace; font-size: 10px; letter-spacing: 0.15em; text-transform: uppercase; color: rgba(255,255,255,0.35); border: 1px solid rgba(255,255,255,0.12); padding: 4px 10px; border-radius: 20px; margin-bottom: 20px; }
+  .profile-name { font-family: 'Instrument Serif', serif; font-size: 28px; font-weight: 400; margin-bottom: 16px; }
+  .profile-desc { font-size: 14px; color: rgba(255,255,255,0.45); line-height: 1.7; font-weight: 300; margin-bottom: 20px; }
+  .profile-signals { display: flex; flex-wrap: wrap; gap: 8px; }
+  .signal-tag { font-size: 11px; color: rgba(255,255,255,0.5); background: rgba(255,255,255,0.06); border: 1px solid var(--border); padding: 4px 10px; border-radius: 20px; font-family: 'DM Mono', monospace; }
+
+  .objections-list { display: flex; flex-direction: column; gap: 0; }
+  .objection-item { border-bottom: 1px solid var(--border); overflow: hidden; }
+  .objection-header { display: flex; align-items: center; justify-content: space-between; padding: 32px 0; cursor: pointer; transition: opacity 0.2s; }
+  .objection-header:hover { opacity: 0.7; }
+  .objection-left { display: flex; align-items: center; gap: 24px; }
+  .objection-num { font-family: 'DM Mono', monospace; font-size: 11px; color: rgba(255,255,255,0.3); letter-spacing: 0.15em; }
+  .objection-title { font-family: 'Instrument Serif', serif; font-size: 26px; font-weight: 400; }
+  .objection-toggle { font-size: 22px; font-weight: 300; color: rgba(255,255,255,0.4); transition: transform 0.3s; }
+  .objection-item.open .objection-toggle { transform: rotate(45deg); }
+  .objection-body { max-height: 0; overflow: hidden; transition: max-height 0.4s cubic-bezier(0.23,1,0.32,1); }
+  .objection-item.open .objection-body { max-height: 1400px; }
+  .objection-content { padding: 0 0 40px 48px; display: grid; grid-template-columns: 1fr 2fr; gap: 32px; }
+  .obj-quote { background: rgba(255,138,0,0.04); border-left: 2px solid rgba(255,138,0,0.5); padding: 20px 24px; border-radius: 0 8px 8px 0; }
+  .obj-quote-label { font-family: 'DM Mono', monospace; font-size: 10px; letter-spacing: 0.15em; text-transform: uppercase; color: rgba(255,138,0,0.55); margin-bottom: 8px; }
+  .obj-quote-text { font-family: 'Instrument Serif', serif; font-size: 16px; font-style: italic; color: rgba(255,255,255,0.7); line-height: 1.6; }
+  .obj-response { padding: 4px 0; }
+  .obj-response-label { font-family: 'DM Mono', monospace; font-size: 10px; letter-spacing: 0.15em; text-transform: uppercase; color: rgba(255,255,255,0.3); margin-bottom: 12px; }
+  .obj-response-text { font-size: 14px; color: rgba(255,255,255,0.65); line-height: 1.75; font-weight: 300; }
+
+  .ghost-sequence { display: grid; grid-template-columns: 90px 1fr; gap: 12px 24px; }
+  .ghost-day { display: contents; }
+  .ghost-day-label { font-family: 'DM Mono', monospace; font-size: 11px; color: rgba(255,138,0,0.6); letter-spacing: 0.15em; padding-top: 16px; }
+  .ghost-day-text { font-size: 13px; color: rgba(255,255,255,0.65); line-height: 1.6; padding: 14px 16px; background: rgba(255,255,255,0.03); border: 1px solid var(--border); border-radius: 8px; }
+
+  .scripts-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+  .script-card { background: #080808; border: 1px solid var(--border); border-radius: 16px; padding: 0; overflow: hidden; transition: border-color 0.3s; }
+  .script-card:hover { border-color: rgba(255,255,255,0.16); }
+  .script-header { display: flex; align-items: center; gap: 12px; padding: 16px 22px; border-bottom: 1px solid var(--border); background: rgba(255,255,255,0.02); }
+  .script-dot { width: 8px; height: 8px; background: var(--accent); border-radius: 50%; box-shadow: 0 0 8px rgba(255,138,0,0.6); }
+  .script-title { font-family: 'DM Mono', monospace; font-size: 11px; letter-spacing: 0.12em; text-transform: uppercase; color: rgba(255,255,255,0.65); }
+  .script-body { padding: 24px 26px; font-family: 'DM Mono', monospace; font-size: 12.5px; color: rgba(255,255,255,0.78); line-height: 1.75; white-space: pre-wrap; }
+  .script-body .comment { color: rgba(255,255,255,0.3); font-style: italic; }
+  .script-body .highlight { color: rgba(255,138,0,0.9); }
+
+  .patterns-table { width: 100%; border-collapse: collapse; background: #080808; border: 1px solid var(--border); border-radius: 16px; overflow: hidden; }
+  .patterns-table th { font-family: 'DM Mono', monospace; font-size: 10px; letter-spacing: 0.18em; text-transform: uppercase; color: rgba(255,255,255,0.4); text-align: left; padding: 18px 24px; border-bottom: 1px solid var(--border); background: rgba(255,255,255,0.02); }
+  .patterns-table td { padding: 22px 24px; border-bottom: 1px solid var(--border); font-size: 14px; color: rgba(255,255,255,0.7); vertical-align: top; line-height: 1.6; font-weight: 300; }
+  .patterns-table tr:last-child td { border-bottom: none; }
+  .patterns-table td:first-child { font-family: 'Instrument Serif', serif; font-size: 18px; color: white; font-weight: 400; min-width: 280px; }
+
+  .errors-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 16px; }
+  .error-card { background: rgba(255,0,60,0.03); border: 1px solid rgba(255,0,60,0.12); border-radius: 16px; padding: 28px; transition: border-color 0.3s; }
+  .error-card:hover { border-color: rgba(255,0,60,0.25); }
+  .error-icon { font-family: 'DM Mono', monospace; font-size: 10px; letter-spacing: 0.15em; text-transform: uppercase; color: rgba(255,0,60,0.7); margin-bottom: 14px; }
+  .error-title { font-family: 'Instrument Serif', serif; font-size: 19px; font-weight: 400; line-height: 1.3; margin-bottom: 10px; }
+  .error-desc { font-size: 13px; color: rgba(255,255,255,0.45); line-height: 1.6; font-weight: 300; }
+
+  .kpis-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
+  .kpi-card { background: #080808; border: 1px solid var(--border); border-radius: 16px; padding: 32px; text-align: left; transition: border-color 0.3s; }
+  .kpi-card:hover { border-color: rgba(255,138,0,0.25); }
+  .kpi-label { font-family: 'DM Mono', monospace; font-size: 10px; letter-spacing: 0.15em; text-transform: uppercase; color: rgba(255,255,255,0.35); margin-bottom: 16px; }
+  .kpi-value { font-family: 'Instrument Serif', serif; font-size: 56px; line-height: 1; font-weight: 400; color: var(--accent); margin-bottom: 12px; }
+  .kpi-target { font-size: 12px; color: rgba(255,255,255,0.45); font-weight: 300; }
+
+  .funnel-container { margin-top: 56px; background: #080808; border: 1px solid var(--border); border-radius: 20px; padding: 40px; }
+  .funnel-title { font-family: 'DM Mono', monospace; font-size: 11px; letter-spacing: 0.15em; text-transform: uppercase; color: rgba(255,255,255,0.4); margin-bottom: 32px; }
+  .funnel-steps { display: flex; flex-direction: column; gap: 0; }
+  .funnel-step { display: grid; grid-template-columns: 40px 1fr 140px; gap: 16px; padding: 20px 0; border-bottom: 1px solid var(--border); align-items: center; }
+  .funnel-arrow { font-family: 'DM Mono', monospace; color: rgba(255,138,0,0.5); font-size: 18px; }
+  .funnel-step-label { font-size: 16px; color: rgba(255,255,255,0.7); }
+  .funnel-step-rate { font-family: 'DM Mono', monospace; font-size: 13px; color: rgba(255,138,0,0.85); text-align: right; }
+
+  .conv-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 16px; }
+  .conv-card { background: #080808; border: 1px solid var(--border); border-radius: 16px; padding: 32px; transition: border-color 0.3s; }
+  .conv-card:hover { border-color: rgba(255,138,0,0.22); }
+  .conv-tag { font-family: 'DM Mono', monospace; font-size: 10px; letter-spacing: 0.15em; text-transform: uppercase; color: rgba(255,138,0,0.55); margin-bottom: 14px; }
+  .conv-name { font-family: 'Instrument Serif', serif; font-size: 22px; margin-bottom: 12px; }
+  .conv-lesson { font-size: 13px; color: rgba(255,255,255,0.55); line-height: 1.7; font-weight: 300; }
+
+  footer { padding: 48px; border-top: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; max-width: 1200px; margin: 0 auto; }
+  .footer-brand { font-family: 'Syne', sans-serif; font-weight: 800; font-size: 14px; letter-spacing: 0.12em; text-transform: uppercase; }
+  .footer-note { font-family: 'DM Mono', monospace; font-size: 11px; letter-spacing: 0.12em; color: rgba(255,255,255,0.3); }
+
+  @keyframes fadeUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+  @keyframes scrollPulse { 0%, 100% { opacity: 0.3; } 50% { opacity: 1; } }
+
+  @media (max-width: 900px) {
+    body { cursor: auto; }
+    .cursor, .cursor-ring { display: none; }
+    nav { padding: 0 20px; }
+    .nav-links { display: none; }
+    section { padding: 80px 20px; }
+    .philosophy-grid, .profiles-grid, .errors-grid, .kpis-grid, .scripts-grid, .ineffs-grid, .conv-grid { grid-template-columns: 1fr; }
+    .phase-item { grid-template-columns: 1fr; gap: 24px; }
+    .phase-num { font-size: 56px; }
+    .objection-content { grid-template-columns: 1fr; padding-left: 0; }
+    .funnel-step { grid-template-columns: 28px 1fr 80px; }
+    .script-card[style*="grid-column"] { grid-column: span 1 !important; }
+    .hero-stats { gap: 24px; }
+    .hero-divider { display: none; }
+    footer { flex-direction: column; gap: 12px; padding: 32px 20px; text-align: center; }
+  }
+
+  .reveal { opacity: 0; transform: translateY(30px); transition: opacity 0.8s ease, transform 0.8s ease; }
+  .reveal.visible { opacity: 1; transform: translateY(0); }
+  .reveal-delay-1 { transition-delay: 0.1s; }
+  .reveal-delay-2 { transition-delay: 0.2s; }
+  .reveal-delay-3 { transition-delay: 0.3s; }
+  .reveal-delay-4 { transition-delay: 0.4s; }
+</style>
+</head>
+<body>
+
+<div class="cursor" id="cursor"></div>
+<div class="cursor-ring" id="cursorRing"></div>
+
+<nav>
+  <a href="#" class="nav-logo">Nikoleta × Boostmentor</a>
+  <ul class="nav-links">
+    <li><a href="#philosophie">Philosophie</a></li>
+    <li><a href="#mindset">Mindset</a></li>
+    <li><a href="#phases">Framework</a></li>
+    <li><a href="#profils">Profils</a></li>
+    <li><a href="#objections">Objections</a></li>
+    <li><a href="#scripts">Scripts</a></li>
+    <li><a href="#kpis">KPIs</a></li>
+  </ul>
+  <span class="nav-badge">Setting Chaud V1.0</span>
+</nav>
+
+<div class="hero">
+  <div class="hero-noise"></div>
+  <p class="hero-eyebrow">Framework Setting Chaud — Documentation Setter Nikoleta</p>
+  <h1 class="hero-title">Transformer<br>un <em>lead chaud</em><br>en call signé.</h1>
+  <p class="hero-subtitle">3 conversations gagnantes analysées. Patterns extraits. Protocole actionnable pour convertir les leads qui ont déjà levé la main chez Nikoleta — sans casser la confiance déjà installée.</p>
+  <div class="hero-stats">
+    <div class="hero-stat">
+      <div class="hero-stat-number">3</div>
+      <div class="hero-stat-label">Convs gagnantes</div>
+    </div>
+    <div class="hero-divider"></div>
+    <div class="hero-stat">
+      <div class="hero-stat-number">6</div>
+      <div class="hero-stat-label">Phases clés</div>
+    </div>
+    <div class="hero-divider"></div>
+    <div class="hero-stat">
+      <div class="hero-stat-number">&gt;50%</div>
+      <div class="hero-stat-label">Conv. lead → call</div>
+    </div>
+  </div>
+  <div class="scroll-hint">
+    <span>Scroll</span>
+    <div class="scroll-line"></div>
+  </div>
+</div>
+
+<div class="sep"></div>
+
+<!-- 01 PHILOSOPHIE -->
+<section id="philosophie">
+  <span class="section-number reveal">01 — Philosophie</span>
+  <h2 class="section-title reveal reveal-delay-1">Le lead a déjà<br>levé la main.</h2>
+  <p class="section-subtitle reveal reveal-delay-2">Trois vérités qui changent tout en setting chaud. Le prospect n'est pas un inconnu : il a déjà signalé un intérêt. Ton job n'est pas de le convaincre — c'est de l'aider à faire le pas suivant.</p>
+  <div class="philosophy-grid reveal reveal-delay-3">
+    <div class="philosophy-card">
+      <span class="philosophy-icon">01 — Rôle</span>
+      <h3>Tu n'es pas là pour pitcher.</h3>
+      <p>Le lead a déjà vu Nikoleta, son contenu, son univers. Il n'a pas besoin d'un argumentaire — il a besoin que tu valides qu'il est au bon endroit et qu'il prenne action maintenant.</p>
+    </div>
+    <div class="philosophy-card">
+      <span class="philosophy-icon">02 — Posture</span>
+      <h3>Capitalise sur l'élan.</h3>
+      <p>Un lead chaud a une fenêtre de motivation très courte. Chaque heure qui passe = pertes sèches. Ta première réponse doit partir vite, chaleureuse, et orientée vers l'action concrète.</p>
+    </div>
+    <div class="philosophy-card">
+      <span class="philosophy-icon">03 — Tactique</span>
+      <h3>Référence le déclencheur.</h3>
+      <p>"J'ai vu que tu as téléchargé le guide", "T'as posé une question sous le post de Nikoleta" → ancrer le contexte instantanément. Ça fait la différence entre un message qui démarre la confiance, et un autre qui paraît automatique.</p>
+    </div>
+  </div>
+</section>
+
+<div class="sep"></div>
+
+<!-- 02 MINDSET -->
+<section id="mindset">
+  <span class="section-number reveal">02 — Mindset &amp; Énergie</span>
+  <h2 class="section-title reveal reveal-delay-1">L'énergie<br>fait 80% du job.</h2>
+  <p class="section-subtitle reveal reveal-delay-2">Le script ne fait que 20%. La certitude, la chaleur, et la capacité à miroiter le ton du lead font le reste. En chaud, le naturel prime — un script trop visible casse la confiance déjà acquise.</p>
+  <div class="philosophy-grid reveal reveal-delay-3">
+    <div class="philosophy-card">
+      <span class="philosophy-icon">01 — Certitude</span>
+      <h3>Tu représentes Nikoleta.</h3>
+      <p>Tu n'es pas un setter random — tu es la prolongation de l'expérience que le lead a vécue avec son contenu. Cette posture installe immédiatement l'autorité, sans avoir à la revendiquer.</p>
+    </div>
+    <div class="philosophy-card">
+      <span class="philosophy-icon">02 — Réactivité</span>
+      <h3>Première réponse en &lt; 30 min.</h3>
+      <p>En chaud, la vitesse vaut plus que la perfection du message. Un lead qui répond et attend 6h commence à se refroidir. Tu ouvres vite, même si tu reviens plus en profondeur après.</p>
+    </div>
+    <div class="philosophy-card">
+      <span class="philosophy-icon">03 — Calibration</span>
+      <h3>Lis le profil avant le premier mot.</h3>
+      <p>Une coach lifestyle ne se parle pas comme un dirigeant masculin de 45 ans. Photo, bio, dernier post → 60 secondes de scan = +20 points de conversion. Adapte ton ton, ton tutoiement, tes émojis.</p>
+    </div>
+  </div>
+  <div style="margin-top: 32px;" class="reveal reveal-delay-4">
+    <table class="patterns-table">
+      <thead><tr><th>Profil prospect</th><th>Énergie à adopter</th></tr></thead>
+      <tbody>
+        <tr><td>Femme, coach / créatrice, ton doux</td><td>"Hello [Prénom]" — chaleureux, émojis discrets (🌿✨😉), phrases courtes et bienveillantes. Pas de "mec", "bro". Reformule en miroir doux.</td></tr>
+        <tr><td>Homme, 20-30 ans, entrepreneur digital</td><td>Ton direct et énergique. "Salut [Prénom]", "trop bien", "let's go". Familier mais pas relâché — il veut un peer qui le challenge, pas un commercial.</td></tr>
+        <tr><td>Profil corporate / dirigeant 40+</td><td>"Bonjour [Prénom]" — conserve le "vous" jusqu'à ce qu'il tutoie. Phrases complètes, peu d'émojis, focus résultats &amp; ROI. Pas de copinage forcé.</td></tr>
+        <tr><td>Lead déjà acheteur Nikoleta (existant)</td><td>Ultra-personnalisé. Référence ce qu'il a déjà acheté / consommé. Pose-toi en concierge, pas en vendeur. "Je te recontacte parce que…"</td></tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<div class="sep"></div>
+
+<!-- 03 PROFILS -->
+<section id="profils">
+  <span class="section-number reveal">03 — Cibles</span>
+  <h2 class="section-title reveal reveal-delay-1">4 profils.<br>4 approches.</h2>
+  <p class="section-subtitle reveal reveal-delay-2">En setting chaud, le déclencheur (téléchargement, commentaire, DM, achat tripwire) raconte déjà beaucoup. Identifie le profil en moins de 60 secondes — la suite en dépend.</p>
+  <div class="profiles-grid reveal reveal-delay-3">
+    <div class="profile-card">
+      <span class="profile-tag">Profil 01 — Le Curieux Engagé</span>
+      <h3 class="profile-name">A consommé, n'a pas encore acté.</h3>
+      <p class="profile-desc">A téléchargé un lead magnet, commenté, regardé plusieurs lives. Conscient de son problème, intéressé par la promesse, mais n'a pas encore passé la barrière du payant. Le profil le plus volumineux — et le plus convertible si bien orienté.</p>
+      <div class="profile-signals"><span class="signal-tag">"téléchargement"</span><span class="signal-tag">"commentaire"</span><span class="signal-tag">"intéressé"</span><span class="signal-tag">"j'aimerais"</span></div>
+    </div>
+    <div class="profile-card">
+      <span class="profile-tag">Profil 02 — L'Acheteur Tripwire</span>
+      <h3 class="profile-name">A déjà sorti la CB une fois.</h3>
+      <p class="profile-desc">A acheté un produit d'entrée (formation, ebook, mini-coaching). Confiance installée, friction CB déjà franchie. Le plus rentable à upseller — l'objectif est de l'amener au call pour l'offre principale, pas de re-vendre la confiance.</p>
+      <div class="profile-signals"><span class="signal-tag">"j'ai pris"</span><span class="signal-tag">"j'ai testé"</span><span class="signal-tag">"j'aime bien"</span><span class="signal-tag">"déjà acheté"</span></div>
+    </div>
+    <div class="profile-card">
+      <span class="profile-tag">Profil 03 — Le DM Directeur</span>
+      <h3 class="profile-name">A pris l'initiative de contacter.</h3>
+      <p class="profile-desc">Lead inbound pur. A envoyé un DM, posé une question, demandé des infos. C'est celui qui a le plus haut intent — il s'est mis en mouvement seul. Risque inverse : sur-vendre quand il faut juste répondre à sa question et l'orienter call.</p>
+      <div class="profile-signals"><span class="signal-tag">"j'ai une question"</span><span class="signal-tag">"comment ça marche"</span><span class="signal-tag">"prix"</span><span class="signal-tag">"intéressée"</span></div>
+    </div>
+    <div class="profile-card">
+      <span class="profile-tag">Profil 04 — Le Réactivable</span>
+      <h3 class="profile-name">Ancien lead qui s'était refroidi.</h3>
+      <p class="profile-desc">Avait engagé il y a 1 à 6 mois, n'a pas converti, et qu'on relance. Mécanismes de défense plus présents — il faut un angle neuf (nouveau contenu, nouveau résultat client) pour rouvrir la conversation sans paraître insistant.</p>
+      <div class="profile-signals"><span class="signal-tag">"j'avais regardé"</span><span class="signal-tag">"je verrai plus tard"</span><span class="signal-tag">"pas le temps"</span><span class="signal-tag">"oublié"</span></div>
+    </div>
+  </div>
+</section>
+
+<div class="sep"></div>
+
+<!-- 04 FRAMEWORK -->
+<section id="phases">
+  <span class="section-number reveal">04 — Framework</span>
+  <h2 class="section-title reveal reveal-delay-1">Le framework<br>en 6 phases.</h2>
+  <p class="section-subtitle reveal reveal-delay-2">De l'ouverture chaleureuse à la confirmation. Chaque phase a un objectif unique. Ne brûle pas les étapes — surtout pas la qualification, même si le lead est déjà chaud.</p>
+  <div class="phases-container">
+
+    <!-- PHASE 01 -->
+    <div class="phase-item reveal">
+      <div class="phase-num">01</div>
+      <div>
+        <p class="phase-objective">Objectif unique</p>
+        <h3 class="phase-title">L'Ouverture Contextualisée</h3>
+        <p class="phase-desc">Reconnecter au déclencheur. Le lead doit comprendre en 5 secondes pourquoi tu lui parles et que ce n'est pas une vague de prospection froide. Ancrer le contexte, féliciter le passage à l'action, ouvrir la conversation.</p>
+      </div>
+      <div>
+        <div class="variants-container">
+          <div class="variants-tabs" style="margin-bottom:12px;">
+            <button class="variant-tab active" onclick="switchVariant('accroche',0,this)">Après lead magnet</button>
+            <button class="variant-tab" onclick="switchVariant('accroche',1,this)">Après tripwire</button>
+            <button class="variant-tab" onclick="switchVariant('accroche',2,this)">DM entrant</button>
+            <button class="variant-tab" onclick="switchVariant('accroche',3,this)">Réactivation</button>
+          </div>
+          <div class="variant-panels" id="accroche">
+            <div class="variant-panel active">
+              <div class="phase-items">
+                <div class="phase-item-row"><div class="phase-dot"></div><p class="phase-item-text"><strong>"Hello [Prénom] ! C'est [Setter] de l'équipe de Nikoleta 🌿 Trop bien que tu aies récupéré le [nom du guide / replay] — je voulais m'assurer que tu en tires vraiment le max."</strong></p></div>
+                <div class="phase-item-row"><div class="phase-dot"></div><p class="phase-item-text"><strong>"Petite question rapide pour mieux te guider : c'est quoi le challenge sur lequel tu bosses en ce moment, et qui t'a fait t'intéresser à [thème] ?"</strong></p></div>
+                <div class="phase-item-row"><div class="phase-dot"></div><p class="phase-item-text" style="color:rgba(255,255,255,0.3);">Usage : Curieux Engagé. Ancre le déclencheur + ouvre directement la qualification.</p></div>
+              </div>
+            </div>
+            <div class="variant-panel">
+              <div class="phase-items">
+                <div class="phase-item-row"><div class="phase-dot"></div><p class="phase-item-text"><strong>"Hello [Prénom] 😊 Bienvenue dans l'univers Nikoleta — vu que tu as pris [nom du produit], je passe juste vérifier que tout est ok côté accès et te poser 2 ou 3 questions pour te débloquer plus vite."</strong></p></div>
+                <div class="phase-item-row"><div class="phase-dot"></div><p class="phase-item-text"><strong>"Dis-moi : qu'est-ce qui t'a fait franchir le pas et acheter ? Ça m'aide à comprendre où tu en es exactement."</strong></p></div>
+                <div class="phase-item-row"><div class="phase-dot"></div><p class="phase-item-text" style="color:rgba(255,255,255,0.3);">Usage : Acheteur Tripwire. Posture concierge, jamais "vendeur de plus".</p></div>
+              </div>
+            </div>
+            <div class="variant-panel">
+              <div class="phase-items">
+                <div class="phase-item-row"><div class="phase-dot"></div><p class="phase-item-text"><strong>"Hey [Prénom], super contente que tu nous écrives 🙌 Je suis [Setter], dans l'équipe de Nikoleta. Avant que je te donne la meilleure réponse possible, je peux te poser 2-3 questions pour bien comprendre ta situation ?"</strong></p></div>
+                <div class="phase-item-row"><div class="phase-dot"></div><p class="phase-item-text" style="color:rgba(255,255,255,0.3);">Usage : DM Directeur. Tu reconnais sa démarche + tu prends la main sans casser son intent.</p></div>
+              </div>
+            </div>
+            <div class="variant-panel">
+              <div class="phase-items">
+                <div class="phase-item-row"><div class="phase-dot"></div><p class="phase-item-text"><strong>"Hello [Prénom] ! Je passais sur les anciennes conversations et je tombe sur la tienne — tu m'avais dit que [X] était ton sujet du moment. Vu ce que Nikoleta a sorti récemment ([nouveau contenu / nouveau case study]), j'ai pensé à toi tout de suite."</strong></p></div>
+                <div class="phase-item-row"><div class="phase-dot"></div><p class="phase-item-text"><strong>"Dis-moi : où tu en es là-dessus aujourd'hui ?"</strong></p></div>
+                <div class="phase-item-row"><div class="phase-dot"></div><p class="phase-item-text" style="color:rgba(255,255,255,0.3);">Usage : Réactivable. Angle neuf obligatoire — sinon tu paraîtras forcer la vente.</p></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- PHASE 02 -->
+    <div class="phase-item reveal">
+      <div class="phase-num">02</div>
+      <div>
+        <p class="phase-objective">Objectif unique</p>
+        <h3 class="phase-title">La Qualification</h3>
+        <p class="phase-desc">Recenser <strong>au moins 2 inefficacités majeures</strong> avant de proposer l'appel. Même en chaud, ne saute jamais cette étape — c'est elle qui pré-vend le call et fait que le prospect arrive en demande, pas en évaluation.</p>
+      </div>
+      <div>
+        <p style="font-size:11px;font-family:'DM Mono',monospace;color:rgba(255,255,255,0.25);letter-spacing:0.12em;text-transform:uppercase;margin-bottom:16px;">Les 4 inefficacités à détecter</p>
+        <div class="ineffs-grid" style="margin-bottom:24px;">
+          <div class="ineff-card">
+            <p class="ineff-num">⚡ Inefficacité 01</p>
+            <h4 class="ineff-title">Conscience sans plan d'action</h4>
+            <p class="ineff-desc">Sait qu'il y a un problème, a consommé beaucoup de contenu gratuit, mais n'a pas de roadmap claire pour passer à l'action. Tourne en rond entre podcasts, lives et lectures.</p>
+          </div>
+          <div class="ineff-card">
+            <p class="ineff-num">⚡ Inefficacité 02</p>
+            <h4 class="ineff-title">Tentatives en solo qui plafonnent</h4>
+            <p class="ineff-desc">A essayé seul·e d'appliquer ce que Nikoleta partage, a eu un début de résultats puis a stagné. Ne sait pas si c'est sa méthode, son contexte, ou son exécution qui bloque.</p>
+          </div>
+          <div class="ineff-card">
+            <p class="ineff-num">⚡ Inefficacité 03</p>
+            <h4 class="ineff-title">Manque de cadre &amp; accountability</h4>
+            <p class="ineff-desc">Discipline irrégulière, pas de structure, pas de personne à qui rendre des comptes. Sait que c'est ça qui bloque — mais n'arrive pas à se le donner seul.</p>
+          </div>
+          <div class="ineff-card">
+            <p class="ineff-num">⚡ Inefficacité 04</p>
+            <h4 class="ineff-title">Décalage entre vision et réalité</h4>
+            <p class="ineff-desc">A une vision claire de l'objectif, mais le chemin actuel ne mène manifestement pas là-bas. Frustration latente : "Je sais ce que je veux, je ne sais juste pas comment m'y rendre."</p>
+          </div>
+        </div>
+        <p style="font-size:11px;font-family:'DM Mono',monospace;color:rgba(255,255,255,0.25);letter-spacing:0.12em;text-transform:uppercase;margin-bottom:16px;">Les 6 questions qui les révèlent</p>
+        <div class="phase-items">
+          <div class="phase-item-row"><div class="phase-dot"></div><p class="phase-item-text">"Top — dis-moi en 2 phrases : c'est quoi ta situation aujourd'hui sur [thème de Nikoleta] ?"</p></div>
+          <div class="phase-item-row"><div class="phase-dot"></div><p class="phase-item-text">"Et où tu aimerais en être, idéalement, dans les 3 à 6 prochains mois ?"</p></div>
+          <div class="phase-item-row"><div class="phase-dot"></div><p class="phase-item-text">"Tu as déjà essayé quoi pour y arriver ? Qu'est-ce qui a marché, qu'est-ce qui a bloqué ?"</p></div>
+          <div class="phase-item-row"><div class="phase-dot"></div><p class="phase-item-text">"Sur une échelle de 1 à 10, à combien tu te sens équipé·e pour atteindre cet objectif tout·e seul·e ?"</p></div>
+          <div class="phase-item-row"><div class="phase-dot"></div><p class="phase-item-text">"Ce serait quoi les X éléments manquants qui te feraient passer à 10 ?"</p></div>
+          <div class="phase-item-row"><div class="phase-dot"></div><p class="phase-item-text">"Si on t'aidait à régler [problématique nommée par lui] dans les 90 jours, ça changerait quoi concrètement dans ta vie / ton business ?"</p></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- PHASE 03 -->
+    <div class="phase-item reveal">
+      <div class="phase-num">03</div>
+      <div>
+        <p class="phase-objective">Objectif unique</p>
+        <h3 class="phase-title">La Douleur</h3>
+        <p class="phase-desc">Faire exprimer la douleur par le prospect lui-même. C'est lui qui pose les mots — pas toi. Écoute active, reformulation courte ("Donc si je comprends bien…"), puis silence. Le silence fait parler.</p>
+      </div>
+      <div class="phase-items">
+        <div class="phase-item-row"><div class="phase-dot"></div><p class="phase-item-text">Stagnation → "Je tourne en rond", "ça fait 6 mois que je dis la même chose"</p></div>
+        <div class="phase-item-row"><div class="phase-dot"></div><p class="phase-item-text">Charge mentale → "Je suis épuisé·e", "j'ai plus la tête à ça", "ça me prend toute mon énergie"</p></div>
+        <div class="phase-item-row"><div class="phase-dot"></div><p class="phase-item-text">Décalage vision/réalité → "Je sais ce que je veux mais j'arrive pas", "c'est frustrant"</p></div>
+        <div class="phase-item-row"><div class="phase-dot"></div><p class="phase-item-text">Solitude / manque de cadre → "Je suis seul·e à porter ça", "j'ai personne à qui en parler"</p></div>
+        <div class="phase-item-row"><div class="phase-dot"></div><p class="phase-item-text">Pivot question : "C'est quoi le plus gros challenge que tu rencontres en ce moment ?"</p></div>
+      </div>
+    </div>
+
+    <!-- PHASE 04 -->
+    <div class="phase-item reveal">
+      <div class="phase-num">04</div>
+      <div>
+        <p class="phase-objective">Objectif unique</p>
+        <h3 class="phase-title">L'Éducation (Loom personnalisé)</h3>
+        <p class="phase-desc">Avant la transition, envoie une vidéo Loom courte (3-5 min) qui reformule SA situation et donne 1-2 conseils actionnables tout de suite. Le Loom installe l'autorité de Nikoleta, pré-vend le call, et te démarque de 99% des setters.</p>
+      </div>
+      <div class="phase-items">
+        <div class="phase-item-row"><div class="phase-dot"></div><p class="phase-item-text"><strong>"[Prénom], j'ai pris 4 min pour te tourner un Loom qui reprend exactement ce que tu m'as partagé — je t'explique comment Nikoleta aborde [problématique nommée] et te donne 2 leviers à activer tout de suite. Regarde tranquille et dis-moi ce que tu en penses 👇"</strong></p></div>
+        <div class="phase-item-row"><div class="phase-dot"></div><p class="phase-item-text">Règle 1 : nomme la personne et reformule sa situation dans les 15 premières secondes.</p></div>
+        <div class="phase-item-row"><div class="phase-dot"></div><p class="phase-item-text">Règle 2 : donne au moins une chose qu'il peut faire dans les 24h, sans payer.</p></div>
+        <div class="phase-item-row"><div class="phase-dot"></div><p class="phase-item-text">Règle 3 : le Loom éduque, il ne vend pas. Tu finis sur "si tu veux qu'on creuse ensemble, on en parle au call."</p></div>
+      </div>
+    </div>
+
+    <!-- PHASE 05 -->
+    <div class="phase-item reveal">
+      <div class="phase-num">05</div>
+      <div>
+        <p class="phase-objective">Objectif unique</p>
+        <h3 class="phase-title">La Transition</h3>
+        <p class="phase-desc">Obtenir un OUI clair pour l'appel sans pression. Positionner l'appel comme une étape logique de la conversation déjà en cours. Demander une micro-validation (pouce, "go", "ok") AVANT d'envoyer le lien.</p>
+      </div>
+      <div class="phase-items">
+        <div class="phase-item-row"><div class="phase-dot"></div><p class="phase-item-text"><strong>"Ok let's go ! Ça fait beaucoup plus sens que tu continues cette conversation directement avec Nikoleta — elle va t'expliquer exactement comment régler [problématique identifiée] et te dire si on peut t'aider ou pas."</strong></p></div>
+        <div class="phase-item-row"><div class="phase-dot"></div><p class="phase-item-text"><strong>"Ça ne t'engage strictement à rien, et que tu démarres avec nous ou pas, tu repartiras forcément avec un plan plus clair pour avancer."</strong></p></div>
+        <div class="phase-item-row"><div class="phase-dot"></div><p class="phase-item-text"><strong>"Valide-moi juste avec un 👍 que c'est ok pour toi et je t'envoie le lien tout de suite."</strong></p></div>
+        <div class="phase-item-row" style="border-color:rgba(255,138,0,0.2);background:rgba(255,138,0,0.04);">
+          <div class="phase-dot" style="background:rgba(255,138,0,0.8);"></div>
+          <p class="phase-item-text" style="color:rgba(255,255,255,0.85);">Après le pouce → <strong>"Top ! Voilà le lien : [calendly]. Choisis ton créneau, réponds aux 2-3 questions pour que Nikoleta arrive préparée, et envoie-moi un screen quand c'est bouclé 😉"</strong></p>
+        </div>
+      </div>
+    </div>
+
+    <!-- PHASE 06 -->
+    <div class="phase-item reveal">
+      <div class="phase-num">06</div>
+      <div>
+        <p class="phase-objective">Objectif unique</p>
+        <h3 class="phase-title">La Confirmation</h3>
+        <p class="phase-desc">Maximiser le taux de show. Message standardisé immédiatement après réservation + rappel H-24 + rappel H-2. Pas négociable : trois points de contact entre la réservation et le call.</p>
+      </div>
+      <div class="phase-items">
+        <div class="phase-item-row"><div class="phase-dot"></div><p class="phase-item-text"><strong>Juste après booking :</strong> "Félicitations [Prénom] — tu viens de faire un vrai pas. La ponctualité fait partie de nos valeurs donc je compte sur toi pour être présent·e à l'heure. Mon temps est précieux, le tien aussi. Nikoleta a hâte d'échanger avec toi 🌿"</p></div>
+        <div class="phase-item-row"><div class="phase-dot"></div><p class="phase-item-text"><strong>H-24 :</strong> "Petit rappel : on se voit demain à [heure] avec Nikoleta. Pense à préparer 1 chose : qu'est-ce qui te ferait dire 'c'était l'appel le plus utile de mon année' ? Tu débarques avec ça en tête, on optimise tout."</p></div>
+        <div class="phase-item-row"><div class="phase-dot"></div><p class="phase-item-text"><strong>H-2 :</strong> "On y est ! Lien : [Zoom/Meet]. Bonne connexion, écouteurs, environnement calme, et on se voit dans 2 heures 🚀"</p></div>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<div class="sep"></div>
+
+<!-- 05 OBJECTIONS -->
+<section id="objections">
+  <span class="section-number reveal">05 — Objections</span>
+  <h2 class="section-title reveal reveal-delay-1">Chaque objection<br>est une ouverture.</h2>
+  <p class="section-subtitle reveal reveal-delay-2">Ne défends jamais — repositionne. Une question ouvre la réflexion là où un argument crée de la résistance. En setting chaud, les objections sont rarement de fond — elles sont de timing, de peur, ou de friction.</p>
+  <div class="objections-list reveal reveal-delay-3">
+
+    <div class="objection-item">
+      <div class="objection-header" onclick="toggleObj(this)">
+        <div class="objection-left"><span class="objection-num">01</span><h3 class="objection-title">"Je veux juste me renseigner, pas être démarché·e"</h3></div>
+        <span class="objection-toggle">+</span>
+      </div>
+      <div class="objection-body">
+        <div class="objection-content">
+          <div class="obj-quote">
+            <p class="obj-quote-label">Ce qu'ils disent</p>
+            <p class="obj-quote-text">"Je veux juste savoir comment ça marche, j'ai pas envie de me retrouver dans un funnel de vente."</p>
+          </div>
+          <div class="obj-response">
+            <p class="obj-response-label">Ta réponse</p>
+            <p class="obj-response-text">"Je comprends complètement — et c'est exactement pour ça que je te pose des questions avant de te proposer quoi que ce soit. L'idée c'est pas de te vendre, c'est de comprendre ta situation pour voir si oui ou non on peut t'aider. Si on peut pas, on te le dira clairement et on t'orientera autrement. Si on peut, on t'expliquera comment. Dans tous les cas, tu repartiras avec un plan plus clair — c'est ça mon job."</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="objection-item">
+      <div class="objection-header" onclick="toggleObj(this)">
+        <div class="objection-left"><span class="objection-num">02</span><h3 class="objection-title">"J'ai pas le budget pour le moment"</h3></div>
+        <span class="objection-toggle">+</span>
+      </div>
+      <div class="objection-body">
+        <div class="objection-content">
+          <div class="obj-quote">
+            <p class="obj-quote-label">Ce qu'ils disent</p>
+            <p class="obj-quote-text">"Ça m'intéresse vraiment, mais là j'ai pas les moyens d'investir."</p>
+          </div>
+          <div class="obj-response">
+            <p class="obj-response-label">Ta réponse</p>
+            <p class="obj-response-text">"Carrément ok — et avant même de parler budget, ce qui compte vraiment c'est de comprendre ta situation. Si on est amenés à te proposer quelque chose, ça doit régler le vrai blocage que tu rencontres, et il faut qu'on valide ensemble que tu es au bon endroit pour avancer. Seulement à partir de là, on regarde comment on peut s'arranger côté finance. En attendant, ça n'engage strictement à rien et tu repartiras avec des conseils concrets implémentables tout de suite."</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="objection-item">
+      <div class="objection-header" onclick="toggleObj(this)">
+        <div class="objection-left"><span class="objection-num">03</span><h3 class="objection-title">"C'est pas le bon moment / je suis débordé·e"</h3></div>
+        <span class="objection-toggle">+</span>
+      </div>
+      <div class="objection-body">
+        <div class="objection-content">
+          <div class="obj-quote">
+            <p class="obj-quote-label">Ce qu'ils disent</p>
+            <p class="obj-quote-text">"Je suis vraiment overbooké·e en ce moment, on en reparle dans quelques semaines ?"</p>
+          </div>
+          <div class="obj-response">
+            <p class="obj-response-label">Ta réponse en 3 temps</p>
+            <p class="obj-response-text"><strong>1.</strong> "Juste pour bien comprendre — qu'est-ce qui fait que tu n'as pas 30-45 minutes dans les 7 prochains jours ?"<br><br><strong>2.</strong> "Est-ce que tu me permets de te partager quelque chose de bienveillant ?"<br><br><strong>3.</strong> "Si tu étais pas débordé·e, on serait pas en train de parler — c'est précisément parce que tu cours après ton temps que ce call peut tout changer. 30-45 minutes maintenant pour structurer [problématique] vs. 6 mois à courir derrière la même charge mentale. Dis-moi si t'es réellement injoignable cette semaine — ou si tu peux te dégager un créneau matin avant 9h ou soir après 18h."</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="objection-item">
+      <div class="objection-header" onclick="toggleObj(this)">
+        <div class="objection-left"><span class="objection-num">04</span><h3 class="objection-title">"J'ai peur de craquer si l'offre est top"</h3></div>
+        <span class="objection-toggle">+</span>
+      </div>
+      <div class="objection-body">
+        <div class="objection-content">
+          <div class="obj-quote">
+            <p class="obj-quote-label">Ce qu'ils disent</p>
+            <p class="obj-quote-text">"J'ai peur que ce soit hyper bien présenté et que je lâche un billet que je devrais pas lâcher."</p>
+          </div>
+          <div class="obj-response">
+            <p class="obj-response-label">Ta réponse</p>
+            <p class="obj-response-text">"Honnête — et c'est sain de te poser la question. Le call n'est pas un closing : c'est un diagnostic. On regarde ta situation, on identifie si on peut t'aider, et on te dit comment — payant ou pas, avec nous ou pas. Si tu ressors avec 'je veux y aller', c'est que ça t'a réellement parlé. Si tu ressors avec 'pas pour moi maintenant', tu repars quand même avec un plan plus clair. Tu ne t'engages à rien en disant oui au call." → Transformer la peur d'acheter en curiosité de se faire aider.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="objection-item">
+      <div class="objection-header" onclick="toggleObj(this)">
+        <div class="objection-left"><span class="objection-num">05</span><h3 class="objection-title">"J'ai besoin d'en parler avec mon/ma conjoint·e"</h3></div>
+        <span class="objection-toggle">+</span>
+      </div>
+      <div class="objection-body">
+        <div class="objection-content">
+          <div class="obj-quote">
+            <p class="obj-quote-label">Ce qu'ils disent</p>
+            <p class="obj-quote-text">"Je veux en parler avec mon/ma conjoint·e avant de prendre rendez-vous."</p>
+          </div>
+          <div class="obj-response">
+            <p class="obj-response-label">Ta réponse</p>
+            <p class="obj-response-text">"Carrément normal — pour le call lui-même, tu n'as pas besoin d'autorisation. C'est juste 30-45 min pour comprendre où tu en es. Si à l'issue ça fait sens et qu'il y a un investissement à valider, tu repars avec toutes les infos en main pour en parler clairement avec [conjoint·e] — au lieu de devoir lui expliquer une intuition floue. Tu peux même prendre le call à 2 si tu veux, on s'adapte. Tu poses le créneau, ok ?"</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="objection-item">
+      <div class="objection-header" onclick="toggleObj(this)">
+        <div class="objection-left"><span class="objection-num">06</span><h3 class="objection-title">"Donne-moi juste les tarifs / infos par message"</h3></div>
+        <span class="objection-toggle">+</span>
+      </div>
+      <div class="objection-body">
+        <div class="objection-content">
+          <div class="obj-quote">
+            <p class="obj-quote-label">Ce qu'ils disent</p>
+            <p class="obj-quote-text">"Tu peux me dire combien ça coûte directement ? Pas besoin d'un appel."</p>
+          </div>
+          <div class="obj-response">
+            <p class="obj-response-label">Ta réponse</p>
+            <p class="obj-response-text">"Je peux complètement — sauf que ce serait te faire un mauvais service. Le prix dépend de ta situation et de ce dont tu as réellement besoin. Te balancer un chiffre sans savoir ce qui te bloque, ce serait juste te faire dire 'trop cher' ou 'pas pour moi' sans qu'on ait regardé ensemble si c'était le cas. Le call sert exactement à ça : on regarde ta situation, on te dit si on peut aider, et là tu sais exactement ce que ça représente pour TON cas. Ça te va si on procède comme ça ?"</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="objection-item">
+      <div class="objection-header" onclick="toggleObj(this)">
+        <div class="objection-left"><span class="objection-num">07</span><h3 class="objection-title">Prospect qui ghost / ne répond plus</h3></div>
+        <span class="objection-toggle">+</span>
+      </div>
+      <div class="objection-body">
+        <div style="padding: 0 0 20px 48px;">
+          <p style="font-size:11px;font-family:'DM Mono',monospace;color:rgba(255,255,255,0.25);letter-spacing:0.12em;text-transform:uppercase;margin-bottom:16px;">Séquence de relance J+1 à J+4</p>
+          <div class="ghost-sequence">
+            <div class="ghost-day">
+              <p class="ghost-day-label">J + 1</p>
+              <p class="ghost-day-text">"[Prénom] 🌿"</p>
+            </div>
+            <div class="ghost-day">
+              <p class="ghost-day-label">J + 2</p>
+              <p class="ghost-day-text">"Tu as sûrement dû te faire kidnapper… c'est ok 😄 fais-moi signe quand tu reprends ton oxygène."</p>
+            </div>
+            <div class="ghost-day">
+              <p class="ghost-day-label">J + 3</p>
+              <p class="ghost-day-text">Mème personnalisé lié à sa niche / contexte. "POV : [Prénom] hésite à me répondre pour la 47ème fois 😅"</p>
+            </div>
+            <div class="ghost-day">
+              <p class="ghost-day-label">J + 4</p>
+              <p class="ghost-day-text">"Tu préfères qu'on continue, ou je te laisse tranquille ? Un mot suffit, pas de souci dans les deux cas 🙂"</p>
+            </div>
+            <div class="ghost-day">
+              <p class="ghost-day-label">J + 14</p>
+              <p class="ghost-day-text">Recontact avec angle neuf (nouveau case study Nikoleta, nouveau contenu, nouvelle promo). "Tiens, je suis tombé·e sur ça et j'ai pensé à toi…"</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<div class="sep"></div>
+
+<!-- 06 SCRIPTS -->
+<section id="scripts">
+  <span class="section-number reveal">06 — Scripts</span>
+  <h2 class="section-title reveal reveal-delay-1">Prêts à l'emploi.<br>Adaptés au contexte.</h2>
+  <p class="section-subtitle reveal reveal-delay-2">Scripts extraits des 3 conversations gagnantes de Nikoleta. Adapte les crochets [entre crochets] à chaque lead — JAMAIS de copier-coller intégral.</p>
+  <div class="scripts-grid reveal reveal-delay-3">
+
+    <div class="script-card">
+      <div class="script-header"><div class="script-dot"></div><span class="script-title">Script A — Ouverture lead magnet</span></div>
+      <div class="script-body"><span class="highlight">"Hello [Prénom] ! C'est [Setter] de l'équipe de Nikoleta 🌿"</span>
+
+<span class="highlight">"Trop bien que tu aies récupéré [nom du guide / replay] — je voulais m'assurer que tu en tires vraiment le max."</span>
+
+<span class="highlight">"Petite question rapide pour mieux te guider : c'est quoi le challenge sur lequel tu bosses en ce moment, et qui t'a fait t'intéresser à [thème] ?"</span></div>
+    </div>
+
+    <div class="script-card">
+      <div class="script-header"><div class="script-dot"></div><span class="script-title">Script A' — Ouverture tripwire / DM / réactivation</span></div>
+      <div class="script-body"><span class="comment">// Tripwire (a acheté un produit d'entrée) :</span>
+<span class="highlight">"Hello [Prénom] 😊 Bienvenue dans l'univers Nikoleta — vu que tu as pris [produit], je passe vérifier que tout est ok et te poser 2-3 questions pour te débloquer plus vite."</span>
+
+<span class="comment">// DM entrant :</span>
+<span class="highlight">"Hey [Prénom], super contente que tu nous écrives 🙌 Je suis [Setter], dans l'équipe de Nikoleta. Je peux te poser 2-3 questions pour bien comprendre ta situation avant de te répondre ?"</span>
+
+<span class="comment">// Réactivation :</span>
+<span class="highlight">"Hello [Prénom] ! Je passais sur les anciennes conv et je tombe sur la tienne — tu m'avais dit que [X] était ton sujet du moment. Nikoleta vient de sortir [nouveau truc], j'ai pensé à toi. Où tu en es là-dessus ?"</span></div>
+    </div>
+
+    <div class="script-card" style="grid-column: span 2;">
+      <div class="script-header"><div class="script-dot"></div><span class="script-title">Script B — Qualification complète (6 questions)</span></div>
+      <div class="script-body"><span class="comment">// Dans l'ordre — une question par message. Jamais 2 questions dans le même message.</span>
+
+1. <span class="highlight">"Top — dis-moi en 2 phrases : c'est quoi ta situation aujourd'hui sur [thème Nikoleta] ?"</span>
+
+2. <span class="highlight">"Et où tu aimerais en être idéalement dans les 3 à 6 prochains mois ?"</span>
+
+3. <span class="highlight">"Tu as déjà essayé quoi pour y arriver ? Qu'est-ce qui a marché / qu'est-ce qui a bloqué ?"</span>
+
+4. <span class="highlight">"Sur une échelle de 1 à 10, à combien tu te sens équipé·e pour atteindre cet objectif tout·e seul·e ?"</span>
+
+5. <span class="highlight">"Ce serait quoi les éléments manquants qui te feraient passer à 10 ?"</span>
+
+6. <span class="highlight">"Si on t'aidait à régler [problématique nommée par lui] dans les 90 jours, ça changerait quoi concrètement dans ta vie / ton business ?"</span></div>
+    </div>
+
+    <div class="script-card" style="grid-column: span 2;">
+      <div class="script-header"><div class="script-dot"></div><span class="script-title">Script C — Loom personnalisé (avant la transition)</span></div>
+      <div class="script-body"><span class="comment">// Avant de proposer le call, envoie un Loom de 3-5 min ultra-personnalisé.</span>
+
+<span class="highlight">"[Prénom], j'ai pris 4 min pour te tourner un Loom qui reprend exactement ce que tu m'as partagé."</span>
+
+<span class="highlight">"Je t'explique comment Nikoleta aborde [problématique nommée par lui] et te donne 2 leviers à activer tout de suite. Regarde tranquille et dis-moi ce que tu en penses 👇"</span>
+
+<span class="comment">// Structure du Loom (4 min) :</span>
+<span class="comment">// 00:00–00:30 → "Salut [Prénom], merci d'avoir partagé ça avec moi"</span>
+<span class="comment">// 00:30–01:30 → reformulation de SA situation (en miroir)</span>
+<span class="comment">// 01:30–03:00 → approche Nikoleta sur ce problème (cadre)</span>
+<span class="comment">// 03:00–03:45 → 2 leviers à activer dans les 24h</span>
+<span class="comment">// 03:45–04:00 → "si tu veux qu'on creuse, on en parle au call"</span>
+
+<span class="comment">// Règle d'or : le Loom éduque, il ne vend pas.</span></div>
+    </div>
+
+    <div class="script-card">
+      <div class="script-header"><div class="script-dot"></div><span class="script-title">Script D — Transition + micro-validation</span></div>
+      <div class="script-body"><span class="highlight">"Ok let's go !"</span>
+
+<span class="highlight">"Ça fait beaucoup plus sens que tu continues cette conversation directement avec Nikoleta — elle va t'expliquer exactement comment régler [problématique identifiée]."</span>
+
+<span class="highlight">"Ça ne t'engage strictement à rien, et que tu démarres avec nous ou pas, tu repartiras avec un plan plus clair."</span>
+
+<span class="highlight">"Valide-moi juste avec un 👍 que c'est ok pour toi et je t'envoie le lien tout de suite."</span>
+
+<span class="comment">// Après le pouce 👍 :</span>
+<span class="highlight">"Top ! Voilà le lien : [calendly]. Choisis ton créneau, réponds aux 2-3 questions pour que Nikoleta arrive préparée, et envoie-moi un screen quand c'est bouclé 😉"</span></div>
+    </div>
+
+    <div class="script-card">
+      <div class="script-header"><div class="script-dot"></div><span class="script-title">Script E — Confirmation post-booking</span></div>
+      <div class="script-body"><span class="comment">// Immédiatement après réservation :</span>
+<span class="highlight">"Félicitations [Prénom] — tu viens de faire un vrai pas. La ponctualité fait partie de nos valeurs donc je compte sur toi pour être présent·e à l'heure. Nikoleta a hâte d'échanger avec toi 🌿"</span>
+
+<span class="comment">// H-24 :</span>
+<span class="highlight">"Petit rappel : on se voit demain à [heure] avec Nikoleta. Prépare 1 chose : qu'est-ce qui te ferait dire 'c'était l'appel le plus utile de mon année' ?"</span>
+
+<span class="comment">// H-2 :</span>
+<span class="highlight">"On y est ! Lien : [Zoom/Meet]. Bonne connexion, écouteurs, environnement calme 🚀"</span></div>
+    </div>
+
+    <div class="script-card" style="grid-column: span 2;">
+      <div class="script-header"><div class="script-dot"></div><span class="script-title">Script F — Réponse à "donne-moi juste les tarifs"</span></div>
+      <div class="script-body"><span class="highlight">"Je peux complètement — sauf que ce serait te faire un mauvais service."</span>
+
+<span class="highlight">"Le prix dépend de ta situation et de ce dont tu as réellement besoin. Te balancer un chiffre sans savoir ce qui te bloque, ce serait juste te faire dire 'trop cher' ou 'pas pour moi' sans qu'on ait regardé ensemble si c'était le cas."</span>
+
+<span class="highlight">"Le call sert exactement à ça : on regarde ta situation, on te dit si on peut aider, et là tu sais exactement ce que ça représente pour TON cas. Ça te va si on procède comme ça ?"</span>
+
+<span class="comment">// Clé : ne donne JAMAIS le prix par message — c'est une perte de lead garantie.</span></div>
+    </div>
+
+    <div class="script-card" style="grid-column: span 2;">
+      <div class="script-header"><div class="script-dot"></div><span class="script-title">Script G — Séquence ghost J+1 à J+14</span></div>
+      <div class="script-body"><span class="comment">// Une relance par jour, ton décroissant en pression :</span>
+
+J+1 : <span class="highlight">"[Prénom] 🌿"</span>
+
+J+2 : <span class="highlight">"Tu as sûrement dû te faire kidnapper… c'est ok 😄"</span>
+
+J+3 : <span class="highlight">[Mème personnalisé à sa niche]
+"POV : [Prénom] hésite à me répondre pour la 47ème fois 😅"</span>
+
+J+4 : <span class="highlight">"Tu préfères qu'on continue, ou je te laisse tranquille ? Un mot suffit 🙂"</span>
+
+J+14 : <span class="highlight">"Tiens, je suis tombé·e sur [nouveau contenu / case study Nikoleta] et j'ai pensé à toi…"</span>
+
+<span class="comment">// Toujours laisser une porte ouverte, jamais reprocher le silence.</span></div>
+    </div>
+
+  </div>
+</section>
+
+<div class="sep"></div>
+
+<!-- 07 CONVERSATIONS GAGNANTES -->
+<section>
+  <span class="section-number reveal">07 — Convs gagnantes</span>
+  <h2 class="section-title reveal reveal-delay-1">3 conversations.<br>3 patterns gagnants.</h2>
+  <p class="section-subtitle reveal reveal-delay-2">Les patterns réplicables extraits des 3 conversations Nikoleta qu'on a retenues comme gagnantes. À internaliser comme des réflexes — pas comme des scripts.</p>
+  <div class="conv-grid reveal reveal-delay-3">
+    <div class="conv-card">
+      <p class="conv-tag">Conversation 01</p>
+      <h3 class="conv-name">Vitesse + chaleur</h3>
+      <p class="conv-lesson">Première réponse en moins de 15 minutes, ton chaleureux dès le premier message, ancrage immédiat du déclencheur. Le lead n'a pas eu le temps de refroidir entre le téléchargement et la conversation — résultat : il s'est ouvert sans défense.</p>
+    </div>
+    <div class="conv-card">
+      <p class="conv-tag">Conversation 02</p>
+      <h3 class="conv-name">Reformulation en miroir</h3>
+      <p class="conv-lesson">À chaque réponse du lead, le setter reformule en 1 phrase courte avant de poser la question suivante. Ça valide qu'on écoute, ça approfondit le partage, et ça pré-vend l'idée que "ces gens-là me comprennent vraiment".</p>
+    </div>
+    <div class="conv-card">
+      <p class="conv-tag">Conversation 03</p>
+      <h3 class="conv-name">Loom personnalisé + transition douce</h3>
+      <p class="conv-lesson">Loom de 4 min qui reprend la situation exacte, propose 2 leviers actionnables immédiatement, et finit sur une invitation au call sans pression. Le lead a réservé dans les 20 minutes — la valeur du Loom a éliminé toute hésitation.</p>
+    </div>
+  </div>
+</section>
+
+<div class="sep"></div>
+
+<!-- 08 PATTERNS -->
+<section>
+  <span class="section-number reveal">08 — Patterns</span>
+  <h2 class="section-title reveal reveal-delay-1">7 patterns invariables<br>en setting chaud.</h2>
+  <table class="patterns-table reveal reveal-delay-2">
+    <thead><tr><th>Pattern</th><th>Pourquoi ça marche</th></tr></thead>
+    <tbody>
+      <tr><td>Ancrage immédiat du déclencheur</td><td>"J'ai vu que tu as téléchargé / commenté / acheté…" → le lead comprend en 5 secondes que ce n'est pas une vague aléatoire. Confiance installée d'entrée.</td></tr>
+      <tr><td>Vitesse de première réponse</td><td>&lt; 30 minutes idéalement, &lt; 2 heures impératif. Au-delà, le lead s'est déjà refroidi, distrait, ou est passé à autre chose. La vitesse vaut plus que la perfection.</td></tr>
+      <tr><td>Une question = un message</td><td>Jamais 2 questions empilées. Le lead répond à la plus facile et évite la vraie. Une question par message force la conversation à approfondir.</td></tr>
+      <tr><td>Reformulation en miroir</td><td>"Donc si je comprends bien, tu…" → valide qu'on écoute, fait dire au lead les mots qui le vendent à lui-même, et différencie de 99% des setters qui pitchent.</td></tr>
+      <tr><td>Loom personnalisé avant le call</td><td>3-5 min ultra-personnalisé qui reformule SA situation. Installe l'autorité de Nikoleta, pré-vend le call, et fait passer le taux conv → call de 25% à 50%+.</td></tr>
+      <tr><td>Micro-validation avant le lien</td><td>Demander 👍 avant d'envoyer le Calendly = engagement actif. Un lead qui valide est 3x plus susceptible de show qu'un lead qui reçoit le lien froidement.</td></tr>
+      <tr><td>Triple confirmation post-booking</td><td>Message après réservation + H-24 + H-2. Trois points de contact → taux de show 90%+. Sans ça, on plafonne à 60-70%.</td></tr>
+    </tbody>
+  </table>
+</section>
+
+<div class="sep"></div>
+
+<!-- 09 ERREURS -->
+<section>
+  <span class="section-number reveal">09 — Erreurs fatales</span>
+  <h2 class="section-title reveal reveal-delay-1">Ce qu'il ne faut<br>jamais faire.</h2>
+  <p class="section-subtitle reveal reveal-delay-2">6 erreurs qui cassent la confiance déjà installée par Nikoleta. Tu n'es pas en cold — tu hérites d'un capital de confiance, ne le brûle pas.</p>
+  <div class="errors-grid reveal reveal-delay-3">
+    <div class="error-card"><p class="error-icon">✕ Erreur 01</p><h3 class="error-title">Répondre 12h après le déclencheur</h3><p class="error-desc">Le lead a déjà refroidi. Il a vu 30 autres contenus depuis, oublié le contexte, et perdu la motivation initiale. La vitesse est le levier #1 en chaud.</p></div>
+    <div class="error-card"><p class="error-icon">✕ Erreur 02</p><h3 class="error-title">Sauter la qualification "parce qu'il est chaud"</h3><p class="error-desc">Un lead chaud non qualifié arrive en évaluation au call, pas en demande. Conversion call → vente plonge. La qualif n'est pas optionnelle, même chaude.</p></div>
+    <div class="error-card"><p class="error-icon">✕ Erreur 03</p><h3 class="error-title">Donner le prix par message</h3><p class="error-desc">99% du temps = perte du lead. Le prix sorti hors contexte sera toujours "trop cher". Le call sert exactement à contextualiser la valeur.</p></div>
+    <div class="error-card"><p class="error-icon">✕ Erreur 04</p><h3 class="error-title">Envoyer un Loom générique</h3><p class="error-desc">Un Loom non personnalisé = pire qu'un message texte. Le lead se sent comme un numéro. Cite-le par son prénom, reformule SA situation, donne SES leviers.</p></div>
+    <div class="error-card"><p class="error-icon">✕ Erreur 05</p><h3 class="error-title">Défendre l'appel quand il est refusé</h3><p class="error-desc">Argumenter crée de la résistance. Repositionne par une question, ou laisse mariner et reviens 14j plus tard avec un angle neuf.</p></div>
+    <div class="error-card"><p class="error-icon">✕ Erreur 06</p><h3 class="error-title">Ton trop commercial vs. ton de Nikoleta</h3><p class="error-desc">Tu es la prolongation de l'univers Nikoleta. Si ton ton casse la chaleur installée par son contenu, tu détruis sa marque. Mime son énergie, pas un script CRM.</p></div>
+  </div>
+</section>
+
+<div class="sep"></div>
+
+<!-- 10 KPIS -->
+<section id="kpis">
+  <span class="section-number reveal">10 — KPIs</span>
+  <h2 class="section-title reveal reveal-delay-1">Mesure tout.<br>Pilote par les chiffres.</h2>
+  <p class="section-subtitle reveal reveal-delay-2">Suivi hebdomadaire obligatoire. Les KPIs en chaud sont plus élevés qu'en cold — si tu n'atteins pas ces seuils, c'est qu'il y a un problème d'exécution, pas de marché.</p>
+  <div class="kpis-grid reveal reveal-delay-3">
+    <div class="kpi-card"><p class="kpi-label">Délai 1re réponse</p><p class="kpi-value">&lt; 30min</p><p class="kpi-target">Idéal &lt; 15 min</p></div>
+    <div class="kpi-card"><p class="kpi-label">Taux de réponse</p><p class="kpi-value">&gt;70%</p><p class="kpi-target">des leads contactés</p></div>
+    <div class="kpi-card"><p class="kpi-label">Conv. qualifiée</p><p class="kpi-value">&gt;60%</p><p class="kpi-target">des réponses obtenues</p></div>
+    <div class="kpi-card"><p class="kpi-label">Conv → Call</p><p class="kpi-value">&gt;50%</p><p class="kpi-target">des conversations qualifiées</p></div>
+    <div class="kpi-card"><p class="kpi-label">Taux de show</p><p class="kpi-value">90%</p><p class="kpi-target">présence effective au call</p></div>
+    <div class="kpi-card"><p class="kpi-label">Calls qualifiés / mois</p><p class="kpi-value">60+</p><p class="kpi-target">objectif mensuel cible</p></div>
+  </div>
+  <div class="funnel-container reveal">
+    <p class="funnel-title">La formule de pilotage</p>
+    <div class="funnel-steps">
+      <div class="funnel-step"><span class="funnel-arrow">→</span><span class="funnel-step-label">Leads chauds entrants</span><span class="funnel-step-rate">100%</span></div>
+      <div class="funnel-step"><span class="funnel-arrow">→</span><span class="funnel-step-label">Leads contactés &lt; 30min</span><span class="funnel-step-rate">× 95%</span></div>
+      <div class="funnel-step"><span class="funnel-arrow">→</span><span class="funnel-step-label">Réponses obtenues</span><span class="funnel-step-rate">× 70%</span></div>
+      <div class="funnel-step"><span class="funnel-arrow">→</span><span class="funnel-step-label">Conversations qualifiées</span><span class="funnel-step-rate">× 60%</span></div>
+      <div class="funnel-step"><span class="funnel-arrow">→</span><span class="funnel-step-label">Appels bookés</span><span class="funnel-step-rate">× 50%</span></div>
+      <div class="funnel-step"><span class="funnel-arrow">→</span><span class="funnel-step-label">Appels honorés</span><span class="funnel-step-rate">× 90%</span></div>
+      <div class="funnel-step" style="border-bottom:none;"><span class="funnel-arrow" style="color:rgba(255,138,0,0.7);">→</span><span class="funnel-step-label" style="color:white;font-size:24px;">CA généré pour Nikoleta</span><span class="funnel-step-rate" style="color:rgba(255,138,0,0.7);">résultat final</span></div>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <span class="footer-brand">Nikoleta × Boostmentor</span>
+  <span class="footer-note">Framework Setting Chaud V1.0 — Document confidentiel</span>
+</footer>
+
+<script>
+  const cursor = document.getElementById('cursor');
+  const ring = document.getElementById('cursorRing');
+  let mouseX = 0, mouseY = 0, ringX = 0, ringY = 0;
+  document.addEventListener('mousemove', e => {
+    mouseX = e.clientX; mouseY = e.clientY;
+    cursor.style.left = mouseX + 'px'; cursor.style.top = mouseY + 'px';
+  });
+  function animRing() {
+    ringX += (mouseX - ringX) * 0.12; ringY += (mouseY - ringY) * 0.12;
+    ring.style.left = ringX + 'px'; ring.style.top = ringY + 'px';
+    requestAnimationFrame(animRing);
+  }
+  animRing();
+  document.querySelectorAll('a, button, [onclick]').forEach(el => {
+    el.addEventListener('mouseenter', () => { cursor.style.transform = 'translate(-50%,-50%) scale(0)'; ring.style.width = '56px'; ring.style.height = '56px'; ring.style.borderColor = 'rgba(255,255,255,0.6)'; });
+    el.addEventListener('mouseleave', () => { cursor.style.transform = 'translate(-50%,-50%) scale(1)'; ring.style.width = '36px'; ring.style.height = '36px'; ring.style.borderColor = 'rgba(255,255,255,0.4)'; });
+  });
+  const reveals = document.querySelectorAll('.reveal');
+  const observer = new IntersectionObserver(entries => { entries.forEach(e => { if (e.isIntersecting) e.target.classList.add('visible'); }); }, { threshold: 0.05 });
+  reveals.forEach(r => observer.observe(r));
+  function toggleObj(header) {
+    const item = header.parentElement;
+    const isOpen = item.classList.contains('open');
+    document.querySelectorAll('.objection-item').forEach(i => i.classList.remove('open'));
+    if (!isOpen) item.classList.add('open');
+  }
+  function switchVariant(groupId, index, btn) {
+    const container = document.getElementById(groupId);
+    container.querySelectorAll('.variant-panel').forEach((p, i) => p.classList.toggle('active', i === index));
+    btn.closest('.variants-tabs').querySelectorAll('.variant-tab').forEach((t, i) => t.classList.toggle('active', i === index));
+  }
+</script>
+</body></html>
